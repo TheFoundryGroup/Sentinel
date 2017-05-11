@@ -22,8 +22,6 @@ public class Application {
         get("/login", LoginView.handleLoginGet, new VelocityTemplateEngine());
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
-        for (Judge j : FoundryModel.judges())
-            System.out.println(j.getName());
     }
     
 }

@@ -14,19 +14,19 @@
             </div>
         </nav>
         <div class="containter center-align">
-            <h1>Not Logged In</h1>
+            <h1>Log In</h1>
             <div class="row">
                 <form class="col s6 offset-s3" id="login" action="/login" method="post">
                     <div class="row">
                         <div class="input-field col s12">
-                            <input placeholder="Team Name" id="team_name" type="text" class="validate">
-                            <label for="team_name">Team Name</label>
+                            <input name="name" placeholder="Name" id="name" type="text" class="validate  #if($failed=="name")invalid#end">
+                            <label for="name" data-error="Incorrect Username">Name</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <input id="password" type="password" class="validate">
-                            <label for="password">Password</label>
+                            <input name="password" id="password" type="password" class="validate #if($failed=="password")invalid#end">
+                            <label for="password" data-error="Incorrect Password">Password</label>
                         </div>
                     </div>
                     <button class="btn waves-effect waves-light" type="submit" name="action">Submit</button>

@@ -22,12 +22,20 @@ public class FoundryModel {
         parseJudges();
     }
     
+    public static boolean hasTeam(String name) {
+        return teams.containsKey(name);
+    }
+    
     public static Team getTeam(String name) {
         return teams.get(name);
     }
     
     public static Collection<Team> teams() {
         return teams.values();
+    }
+    
+    public static boolean hasJudge(String name) {
+        return judges.containsKey(name);
     }
     
     public static Judge getJudge(String name) {

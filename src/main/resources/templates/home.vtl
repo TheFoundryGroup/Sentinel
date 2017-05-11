@@ -14,17 +14,16 @@
     </div>
 </nav>
 
+<div class="container center-align">
     #if($loggedIn)
     <h1>Logged In</h1>
-    <form id="logout" action="/logout" method="post">
-        <input type="submit" value="Log out">
-    </form>
     #else
     <h1>Not Logged In</h1>
     <form id="login" action="/login" method="post">
         <input type="submit" value="Log in">
     </form>
     #end
+</div>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>

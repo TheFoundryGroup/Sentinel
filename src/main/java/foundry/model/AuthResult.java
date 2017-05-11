@@ -1,5 +1,5 @@
 package foundry.model;
 
 public enum AuthResult {
-    FAILED, TEAM, JUDGE
+    FAILED_NAME, FAILED_PASSWORD, TEAM, JUDGE
 }
