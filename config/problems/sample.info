@@ -1,0 +1,7 @@
+Sample problem.
+
+Input:
+A list of integers, separated by newlines
+
+Output:
+Each integer multiplied by 2, separated by newlines

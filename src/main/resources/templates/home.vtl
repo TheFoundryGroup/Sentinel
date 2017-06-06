@@ -6,7 +6,7 @@
 
 <nav>
     <div class="nav-wrapper">
-        <a href="#!" class="brand-logo center">Logo</a>
+        <a href="#!" class="brand-logo center">Sentinel Online Judge</a>
         <ul class="left hide-on-med-and-down">
             <li class="active"><a href="/">Home</a></li>
             <li><a href="leaderboard">Leaderboard</a></li>
@@ -15,17 +15,21 @@
 </nav>
 
 <div class="container center-align">
-    #if($loggedIn)
     <h1>Logged In</h1>
-    #else
-    <h1>Not Logged In</h1>
-    <form id="login" action="/login" method="post">
-        <input type="submit" value="Log in">
-    </form>
+    <ul class="collapsible" data-collapsible="accordion">
+    #foreach($problem in $problems)
+        <li>
+            <div class="collapsible-header">$problem.getName()</div>
+            <div class="collapsible-body">$problem.getDescription().replaceAll("\n", "<br/>")</div>
+        </li>
     #end
+    </ul>
 </div>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script>
+    \$(document).ready(function(){$('.collapsible').collapsible();});
+</script>
 </body>
 </html>

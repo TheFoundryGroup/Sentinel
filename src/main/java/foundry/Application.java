@@ -1,7 +1,5 @@
 package foundry;
 
-import foundry.model.FoundryModel;
-import foundry.model.Judge;
 import foundry.views.HomeView;
 import foundry.views.LoginView;
 import spark.template.velocity.VelocityTemplateEngine;

@@ -1,5 +1,6 @@
 package foundry.views;
 
+import foundry.model.SentinelModel;
 import spark.ModelAndView;
 import spark.TemplateViewRoute;
 
@@ -12,6 +13,7 @@ public class HomeView {
         if (req.session().attribute("loggedIn")!=null) {
             model.put("loggedIn", req.session().attribute("loggedIn"));
             model.put("judge", req.session().attribute("judge"));
+            model.put("problems", SentinelModel.getProblems());
         }
         return new ModelAndView(model, "templates/home.vtl");
     };
