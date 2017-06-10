@@ -1,0 +1,28 @@
+<div class="row">
+    <form id="upload" action="/upload" method="post">
+        #if(!$problem)
+        <div class="input-field">
+            <select>
+                <option value="" disabled >Problem</option>
+                #foreach($p in $problems)
+                    <option value="$p.getName()" >$p.getName()</option>
+                #end
+            </select>
+            <label>Problem</label>
+        </div>
+        <script>
+            $(document).ready(function() {$('select').material_select();});
+        </script>
+        #end
+        <div class="file-field input-field">
+            <div class="btn">
+                <span>File</span>
+                <input type="file">
+            </div>
+            <div class="file-path-wrapper">
+                <input class="file-path validate" type="text">
+            </div>
+        </div>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Submit</button>
+    </form>
+</div>

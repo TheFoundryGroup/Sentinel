@@ -1,6 +1,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 </head>
 <body>
 
@@ -20,13 +21,16 @@
     #foreach($problem in $problems)
         <li>
             <div class="collapsible-header">$problem.getName()</div>
-            <div class="collapsible-body">$problem.getDescription().replaceAll("\n", "<br/>")</div>
+            <div class="collapsible-body">
+                $problem.getDescription().replaceAll("\n", "<br/>")
+                <br/>
+                #parse("/templates/file.vtl")
+            </div>
         </li>
     #end
     </ul>
 </div>
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script>
     \$(document).ready(function(){$('.collapsible').collapsible();});
