@@ -2,6 +2,7 @@ package foundry;
 
 import foundry.views.HomeView;
 import foundry.views.LoginView;
+import foundry.views.UploadView;
 import spark.template.velocity.VelocityTemplateEngine;
 
 import static spark.Spark.*;
@@ -20,6 +21,7 @@ public class Application {
         get("/login", LoginView.handleLoginGet, new VelocityTemplateEngine());
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
+        post("/upload", UploadView.handleUploadPost);
     }
     
 }

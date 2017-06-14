@@ -1,23 +1,32 @@
 <div class="row">
-    <form id="upload" action="/upload" method="post">
+    <form id="upload" action="/upload" method="post" enctype="multipart/form-data">
         #if(!$problem)
         <div class="input-field">
-            <select>
-                <option value="" disabled >Problem</option>
+            <select name="problem">
+                <option value="" disabled selected>Problem</option>
                 #foreach($p in $problems)
                     <option value="$p.getName()" >$p.getName()</option>
                 #end
             </select>
             <label>Problem</label>
         </div>
-        <script>
-            $(document).ready(function() {$('select').material_select();});
-        </script>
+        #else
+        <div style="display:none">
+            <select name="problem">
+                <option value="$problem.getName()"></option>
+            </select>
+        </div>
         #end
+        <div class="input-field">
+            <select name="language">
+                <option value="java" selected>Java</option>
+            </select>
+            <label>Language</label>
+        </div>
         <div class="file-field input-field">
             <div class="btn">
                 <span>File</span>
-                <input type="file">
+                <input type="file" name="file">
             </div>
             <div class="file-path-wrapper">
                 <input class="file-path validate" type="text">
@@ -25,4 +34,7 @@
         </div>
         <button class="btn waves-effect waves-light" type="submit" name="action">Submit</button>
     </form>
+    <script>
+        $(document).ready(function() {$('select').material_select();});
+    </script>
 </div>
