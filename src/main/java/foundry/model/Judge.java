@@ -1,17 +1,11 @@
 package foundry.model;
 
 public class Judge {
-    
-    private String name;
+
     private String password;
     
-    public Judge(String name, String password) {
-        this.name = name;
+    public Judge(String password) {
         this.password = password;
-    }
-    
-    public String getName() {
-        return name;
     }
     
     public String getPassword() {

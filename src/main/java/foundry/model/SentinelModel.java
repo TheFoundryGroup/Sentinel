@@ -1,8 +1,11 @@
 package foundry.model;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,10 +21,17 @@ public class SentinelModel {
     
     private static List<Problem> problems;
     
+    private static Gson gson;
+    
     static {
+        gson = new GsonBuilder().setPrettyPrinting().create();
         teams = new HashMap<>();
         judges = new HashMap<>();
-        settings = new Settings();
+        if (Files.exists(Paths.get("data/config.json"))) {
+            settings = gson.fromJson(readFile("data/config.json"), Settings.class);
+        } else {
+            settings = new Settings();
+        }
         problems = new ArrayList<>();
         parseTeams();
         parseJudges();
@@ -61,28 +71,22 @@ public class SentinelModel {
     }
     
     private static void parseTeams() {
-        JSONObject obj = new JSONObject(readFile("config/teams.json"));
-        for (String name : obj.keySet()) {
-            JSONObject team = obj.getJSONObject(name);
-            teams.put(name, new Team(name, team.getString("password")));
-        }
+        Type collectionType = new TypeToken<HashMap<String, Team>>(){}.getType();
+        teams = gson.fromJson(readFile("data/teams.json"), collectionType);
     }
     
     private static void parseJudges() {
-        JSONObject obj = new JSONObject(readFile("config/judges.json"));
-        for (String name : obj.keySet()) {
-            JSONObject judge = obj.getJSONObject(name);
-            judges.put(name, new Judge(name, judge.getString("password")));
-        }
+        Type collectionType = new TypeToken<HashMap<String, Judge>>(){}.getType();
+        judges = gson.fromJson(readFile("data/judges.json"), collectionType);
     }
     
     private static void parseProblems() {
-        File dir = new File("config/problems");
+        File dir = new File("data/problems");
         for (String s : Arrays.stream(dir.listFiles()).map(File::getName).filter(n -> n.endsWith(".in")).map(s -> s.substring(0, s.length()-3)).collect(Collectors.toList())) {
             try {
-                Path in = Paths.get("config/problems/"+s + ".in");
-                Path out = Paths.get("config/problems/"+s + ".out");
-                String desc = Files.exists(Paths.get("config/problems/"+s+".info")) ? readFile("config/problems/"+s+".info") : "";
+                Path in = Paths.get("data/problems/"+s + ".in");
+                Path out = Paths.get("data/problems/"+s + ".out");
+                String desc = Files.exists(Paths.get("data/problems/"+s+".info")) ? readFile("data/problems/"+s+".info") : "";
                 Problem p = new Problem(Files.readAllLines(out), readFile(in), s, desc);
                 problems.add(p);
             } catch (IOException e) {
@@ -102,6 +106,41 @@ public class SentinelModel {
     }
     private static String readFile(String path) {
         return readFile(Paths.get(path));
+    }
+    
+    private static void writeFile(String path, String contents) {
+        try {
+            if (Files.notExists(Paths.get(path))) Files.createFile(Paths.get(path));
+            FileWriter f = new FileWriter(path);
+            f.write(contents);
+            f.flush();
+            f.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+    
+    public static void save() {
+        saveTeams();
+        saveJudges();
+        saveSettings();
+    }
+    
+    public static void saveTeams() {
+        String serialized = gson.toJson(teams);
+        writeFile("data/teams.json", serialized);
+    }
+    public static void saveJudges() {
+        String serialized = gson.toJson(judges);
+        writeFile("data/judges.json", serialized);
+    }
+    public static void saveSettings() {
+        String serialized = gson.toJson(settings);
+        writeFile("data/config.json", serialized);
+    }
+    
+    public static void runAsync(Runnable r) {
+        new Thread(r).run();
     }
     
     //deny access to constructor

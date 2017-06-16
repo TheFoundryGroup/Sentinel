@@ -1,5 +1,7 @@
 package foundry;
 
+import foundry.model.SentinelModel;
+import foundry.model.Submission;
 import foundry.views.HomeView;
 import foundry.views.LoginView;
 import foundry.views.UploadView;
@@ -22,6 +24,7 @@ public class Application {
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
         post("/upload", UploadView.handleUploadPost);
+        SentinelModel.save();
     }
     
 }

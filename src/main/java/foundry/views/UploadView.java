@@ -21,12 +21,13 @@ public class UploadView {
         Team team = SentinelModel.getTeam(teamName);
         int subNum = team.getSubmissions(problem).size()+1;
         String language = req.queryMap().value("language");
-        Path location = Files.createFile(Paths.get(String.format("uploads/%s-%s-%d.%s", teamName, problem, subNum, language)));
+        Path location = Files.createFile(Paths.get(Submission.getFileName(teamName, problem, subNum, language)));
         try (InputStream in = req.raw().getPart("file").getInputStream()) {
             Files.copy(in, location, StandardCopyOption.REPLACE_EXISTING);
         }
-        team.addSubmission(problem, new Submission());
+        team.addSubmission(problem, new Submission(teamName, problem, subNum, language));
         res.redirect("");
+        SentinelModel.runAsync(SentinelModel::saveTeams);
         return "";
     };
     
