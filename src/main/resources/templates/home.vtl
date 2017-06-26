@@ -5,30 +5,39 @@
 </head>
 <body>
 
-<nav>
-    <div class="nav-wrapper">
-        <a href="#!" class="brand-logo center">Sentinel Online Judge</a>
-        <ul class="left hide-on-med-and-down">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="leaderboard">Leaderboard</a></li>
-        </ul>
-    </div>
-</nav>
+#parse("/templates/nav.vtl")
 
-<div class="container center-align">
-    <h1>Logged In</h1>
-    <ul class="collapsible" data-collapsible="accordion">
-    #foreach($problem in $problems)
-        <li>
-            <div class="collapsible-header">$problem.getName()</div>
-            <div class="collapsible-body">
-                $problem.getDescription().replaceAll("\n", "<br/>")
-                <br/>
-                #parse("/templates/file.vtl")
-            </div>
-        </li>
+<div class="container center-align row">
+    <h1 class="s12">Welcome, $loggedIn!</h1>
+
+    <div class="divider"></div>
+
+    #if(!$judge)
+
+        <div class="col s6">
+            <h1>Problems</h1>
+            <ul class="collapsible" data-collapsible="accordion">
+            #foreach($problem in $problems)
+                <li>
+                    <div class="collapsible-header">$problem.getName()</div>
+                    <div class="collapsible-body">
+                        $problem.getDescription().replaceAll("\n", "<br/>")
+                        <br/>
+                        #parse("/templates/file.vtl")
+                    </div>
+                </li>
+            #end
+            </ul>
+        </div>
+
+        <div class="col s6">
+            <h1>Clarifications</h1>
+            #parse("/templates/clarification.vtl")
+        </div>
     #end
-    </ul>
+
+
+
 </div>
 
 <script type="text/javascript" src="js/materialize.min.js"></script>

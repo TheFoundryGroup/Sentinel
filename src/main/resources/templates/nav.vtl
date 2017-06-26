@@ -1,0 +1,13 @@
+<nav>
+    <div class="nav-wrapper">
+        <a href="/" class="brand-logo center">Sentinel Online Judge</a>
+        <ul class="left hide-on-med-and-down">
+
+            <li #if($home)class="active"#end><a href="/">Home</a></li>
+
+            <li #if($leaderboard)class="active"#end><a href="leaderboard">Leaderboard</a></li>
+
+        </ul>
+        <div class="brand-logo right">$loggedIn</div>
+    </div>
+</nav>
