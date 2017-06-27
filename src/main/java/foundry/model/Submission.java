@@ -1,17 +1,25 @@
 package foundry.model;
 
+import foundry.judge.JudgeStatus;
+import foundry.views.WebsocketHandler;
+
 public class Submission {
     
     private int attempt;
     private String problem;
-    String teamName;
-    String language;
+    private String teamName;
+    private String language;
+    private JudgeStatus status;
+    private long timestamp;
     
     public Submission(String teamName, String problem, int attempt, String language) {
         this.attempt = attempt;
         this.problem = problem;
         this.teamName = teamName;
         this.language = language;
+        timestamp = System.currentTimeMillis();
+        status = JudgeStatus.WAITING;
+        updateWebsocket();
     }
     
     public String getFileName() {
@@ -20,6 +28,10 @@ public class Submission {
     
     public static String getFileName(String teamName, String problem, int attempt, String language) {
         return String.format("uploads/%s-%s-%d.%s", teamName, problem, attempt, language);
+    }
+    
+    public void updateWebsocket() {
+        WebsocketHandler.updateSubmission(SentinelModel.getTeam(teamName), this);
     }
     
     public int getAttempt() {
@@ -46,5 +58,13 @@ public class Submission {
     public void setLanguage(String language) {
         this.language = language;
     }
-    
+    public JudgeStatus getStatus() {
+        return status;
+    }
+    public void setStatus(JudgeStatus status) {
+        this.status = status;
+    }
+    public long getTimestamp() {
+        return timestamp;
+    }
 }

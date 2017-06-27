@@ -1,9 +1,9 @@
 package foundry;
 
 import foundry.model.SentinelModel;
-import foundry.model.Submission;
 import foundry.views.HomeView;
 import foundry.views.LoginView;
+import foundry.views.WebsocketHandler;
 import foundry.views.UploadView;
 import spark.template.velocity.VelocityTemplateEngine;
 
@@ -13,10 +13,11 @@ public class Application {
     
     public static void main(String[] args) {
         port(80);
+        webSocket("/websocket", WebsocketHandler.class);
         staticFileLocation("public");
         before((req, res) -> {
             if (req.session().attribute("loggedIn")==null && (!req.pathInfo().equals("/login") && !req.pathInfo().equals("/login/"))) {
-                res.redirect("login");
+                res.redirect("login", 303);
             }
         });
         get("/", HomeView.handleHomeGet, new VelocityTemplateEngine());
