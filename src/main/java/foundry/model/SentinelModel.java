@@ -3,6 +3,8 @@ package foundry.model;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import foundry.languages.Java;
+import foundry.languages.Language;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -21,6 +23,8 @@ public class SentinelModel {
     
     private static List<Problem> problems;
     
+    private static HashMap<String, Language> languages;
+    
     private static Gson gson;
     
     static {
@@ -33,6 +37,8 @@ public class SentinelModel {
             settings = new Settings();
         }
         problems = new ArrayList<>();
+        languages = new HashMap<>();
+        languages.put("Java", new Java());
         parseTeams();
         parseJudges();
         parseProblems();
@@ -68,6 +74,15 @@ public class SentinelModel {
     
     public static List<Problem> getProblems() {
         return problems;
+    }
+    
+    public static Problem getProblem(String problem) {
+        for (Problem p : problems) if (p.getName().equals(problem)) return p;
+        return null;
+    }
+    
+    public static Language getLanguage(String language) {
+        return languages.get(language);
     }
     
     private static void parseTeams() {

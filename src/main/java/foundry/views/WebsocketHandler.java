@@ -69,6 +69,8 @@ public class WebsocketHandler {
         });
     }
     public static void updateSubmission(Team t, Submission s) {
+        if (sessions.get(t)==null) return;
+        System.out.println("update");
         WSOutboundMessage mess = new WSOutboundMessage("update-submission", s);
         String ans = gson.toJson(mess);
         sessions.get(t).forEach(sess -> {

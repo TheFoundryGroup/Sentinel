@@ -1,5 +1,6 @@
 package foundry;
 
+import foundry.judge.AutoJudge;
 import foundry.model.SentinelModel;
 import foundry.views.HomeView;
 import foundry.views.LoginView;
@@ -26,6 +27,9 @@ public class Application {
         post("/logout", LoginView.handleLogoutPost);
         post("/upload", UploadView.handleUploadPost);
         SentinelModel.save();
+        
+        Thread autoJudge = new Thread(new AutoJudge());
+        autoJudge.run();
     }
     
 }

@@ -14,7 +14,7 @@
 
     #if(!$judge)
 
-        <div class="col s12">
+        <div class="col s12 z-depth-1" style="padding-left: 1em; padding-right: 1em;">
             <ul id="submissions" class="collection with-header left-align" data-collapsible="accordion">
                 <li class="collection-header"><h5>Submissions</h5></li>
                 <li class="collection-item" id="empty-submissions">No submissions</li>
@@ -25,7 +25,7 @@
 
         <div class="divider"></div>
 
-        <div class="col s6">
+        <div class="col s6 z-depth-1">
             <h1>Problems</h1>
             <ul class="collapsible" data-collapsible="accordion">
             #foreach($problem in $problems)
@@ -41,7 +41,7 @@
             </ul>
         </div>
 
-        <div class="col s6">
+        <div class="col s6 z-depth-1">
             <h1>Clarifications</h1>
             #parse("/templates/clarification.vtl")
         </div>
@@ -58,8 +58,12 @@
     socket.addEventListener('message', function (event) {
         var json = JSON.parse(event.data);
         var reason = json.reason;
+        console.log(reason);
         if (reason=="submissions") {
             generateSubmissions(json.data);
+        }
+        if (reason=="update-submission") {
+            updateSubmission(json.data);
         }
     });
     var message = {
@@ -72,12 +76,20 @@
         socket.send(JSON.stringify(message));
     });
 
+    function getSubmissionId(sub) {
+        return sub.problem+"-"+sub.attempt;
+    }
+
+    function HTMLify(str) {
+        return str.replace(/\n/ig, "<br/>");
+    }
+
     function generateSubmissions(data) {
         if (data.length!=0) document.getElementById("empty-submissions").outerHTML="";
         else return;
 
         var ul = document.getElementById("submissions");
-        data.sort(function(a,b) {return a.timestamp-b.timestamp});
+        data.sort(function(a,b) {return b.timestamp-a.timestamp});
         for (var i = 0; i<data.length; i++) {
             var sub = data[i];
             var status = sub.status;
@@ -85,8 +97,22 @@
             if (status=="COMPILE_ERROR" || status=="RUNTIME_ERROR" || status=="INCORRECT") color = "red";
             if (status=="CORRECT") color = "green";
             var badge = "<span class='new badge "+color+"' data-badge-caption=''>"+status+"</span>";
-            ul.innerHTML+="<li class='collection-item'>"+badge+sub.problem+", attempt "+sub.attempt+"</li>";
+            ul.innerHTML+="<li class='collection-item' id='"+getSubmissionId(sub)+"'>"+badge+sub.problem+", attempt "+sub.attempt+
+                    (sub.error=="" ? "" : "<p>Error:<br/><pre class='red-text'>"+sub.error+"</pre></p>")+
+                    "</li>";
         }
+    }
+
+    function updateSubmission(sub) {
+        var li = document.getElementById(getSubmissionId(sub))
+        var status = sub.status;
+        var color = "blue";
+        if (status=="COMPILE_ERROR" || status=="RUNTIME_ERROR" || status=="INCORRECT") color = "red";
+        if (status=="CORRECT") color = "green";
+        var badge = "<span class='new badge "+color+"' data-badge-caption=''>"+status+"</span>";
+        li.outerHTML="<li class='collection-item' id='"+getSubmissionId(sub)+"'>"+badge+sub.problem+", attempt "+sub.attempt+
+                (sub.error=="" ? "" : "<p>Error:<br/><pre class='red-text'>"+sub.error+"</pre></p>")+
+                "</li>";
     }
 
 </script>
