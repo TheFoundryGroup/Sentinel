@@ -10,6 +10,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JudgeProcess {
     
@@ -25,7 +27,6 @@ public class JudgeProcess {
         this.team = SentinelModel.getTeam(submission.getTeamName());
         this.status = JudgeStatus.WAITING;
         this.language = SentinelModel.getLanguage(submission.getLanguage());
-        cleanWorkspace();
     }
     
     public CompileResult compile() throws IOException {
@@ -39,21 +40,32 @@ public class JudgeProcess {
         return res;
     }
     
-    private void cleanWorkspace() {
-        /*
-        //get workspace ready to go
-        Path workspacePath = Paths.get("/uploads/workspace");
-        if (!Files.exists(workspacePath))
-            try {
-                Files.createDirectory(workspacePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        File workspace = new File("/uploads/workspace");
-        //clean up workspace
-        if (workspace.listFiles().length!=0) {
-            for (File f : workspace.listFiles()) f.delete();
-        }*/
+    public RunResult run() throws IOException {
+        RunResult res = language.run(submission);
+        if (res.isSuccessful()) {
+            setStatus(JudgeStatus.JUDGING);
+        } else {
+            submission.setError(res.getError());
+            setStatus(JudgeStatus.RUNTIME_ERROR);
+        }
+        return res;
+    }
+    
+    public JudgeResult judge(RunResult res) {
+        List<String> output = res.getOutput();
+        List<String> expected = problem.getExpected();
+        List<Integer> diffs = new ArrayList<>();
+        int i;
+        for (i = 0; i<output.size() && i<expected.size(); i++) {
+            if (!output.get(i).trim().equals(expected.get(i))) diffs.add(i);
+        }
+        for (;i<output.size(); i++) diffs.add(i);
+        if (diffs.size()==0) {
+            setStatus(JudgeStatus.CORRECT);
+        } else {
+            setStatus(JudgeStatus.INCORRECT);
+        }
+        return new JudgeResult(diffs.size()==0, diffs);
     }
     
     private void setStatus(JudgeStatus status) {

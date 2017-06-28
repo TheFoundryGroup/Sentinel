@@ -1,6 +1,7 @@
 package foundry.views;
 
 import foundry.languages.Language;
+import foundry.model.Problem;
 import foundry.model.SentinelModel;
 import foundry.model.Submission;
 import foundry.model.Team;
@@ -44,6 +45,13 @@ public class UploadView {
         try (InputStream in = req.raw().getPart("file").getInputStream()) {
             Files.copy(in, location, StandardCopyOption.REPLACE_EXISTING);
         }
+        
+        Path input = Paths.get("data/problems/"+problem+".in");
+        if (Files.exists(input)) {
+            Path link = folder.resolve(input.getFileName());
+            Files.createLink(link, input);
+        }
+        
         team.addSubmission(problem, new Submission(teamName, problem, subNum, languageName, other.getFileName().toString()));
         res.redirect("");
         SentinelModel.runAsync(SentinelModel::saveTeams);

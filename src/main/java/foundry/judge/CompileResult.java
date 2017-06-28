@@ -13,7 +13,6 @@ public class CompileResult {
     public boolean isSuccessful() {
         return successful;
     }
-    
     public String getOutput() {
         return output;
     }

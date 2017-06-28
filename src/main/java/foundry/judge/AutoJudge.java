@@ -24,10 +24,17 @@ public class AutoJudge implements Runnable {
             }
             while (!submissions.isEmpty()) {
                 Submission s = submissions.poll();
-                System.out.println(s.getFolderName());
                 JudgeProcess process = new JudgeProcess(SentinelModel.getProblem(s.getProblem()), s);
                 try {
                     CompileResult res = process.compile();
+                    SentinelModel.saveTeams();
+                    if (!res.isSuccessful()) continue;
+                    
+                    RunResult run = process.run();
+                    SentinelModel.saveTeams();
+                    if (!run.isSuccessful()) continue;
+                    
+                    JudgeResult judge = process.judge(run);
                     SentinelModel.saveTeams();
                 } catch (IOException e) {
                     e.printStackTrace();
