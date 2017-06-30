@@ -2,10 +2,7 @@ package foundry;
 
 import foundry.judge.AutoJudge;
 import foundry.model.SentinelModel;
-import foundry.views.HomeView;
-import foundry.views.LoginView;
-import foundry.views.WebsocketHandler;
-import foundry.views.UploadView;
+import foundry.views.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
 import static spark.Spark.*;
@@ -26,6 +23,7 @@ public class Application {
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
         post("/upload", UploadView.handleUploadPost);
+        post("/clarification", ClarificationView.handleClarificationPost);
         SentinelModel.save();
         
         Thread autoJudge = new Thread(new AutoJudge());

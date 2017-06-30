@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.io.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SentinelModel {
@@ -22,6 +23,7 @@ public class SentinelModel {
     private static Settings settings;
     
     private static List<Problem> problems;
+    private static List<Clarification> clarifications;
     
     private static HashMap<String, Language> languages;
     
@@ -37,11 +39,13 @@ public class SentinelModel {
             settings = new Settings();
         }
         problems = new ArrayList<>();
+        clarifications = new LinkedList<>();
         languages = new HashMap<>();
         languages.put("Java", new Java());
         parseTeams();
         parseJudges();
         parseProblems();
+        parseClarifications();
     }
 
     public static Settings getSettings() {
@@ -76,6 +80,17 @@ public class SentinelModel {
         return problems;
     }
     
+    public static List<Clarification> getClarifications() {
+        return clarifications;
+    }
+    public static List<Clarification> getClarifications(Team t) {
+        return clarifications.stream().filter(c -> c.concerns(t)).collect(Collectors.toList());
+    }
+    
+    public static void addClarification(Clarification c) {
+        clarifications.add(c);
+    }
+    
     public static Problem getProblem(String problem) {
         for (Problem p : problems) if (p.getName().equals(problem)) return p;
         return null;
@@ -93,6 +108,13 @@ public class SentinelModel {
     private static void parseJudges() {
         Type collectionType = new TypeToken<HashMap<String, Judge>>(){}.getType();
         judges = gson.fromJson(readFile("data/judges.json"), collectionType);
+    }
+    
+    private static void parseClarifications() {
+        Path file = Paths.get("data/clarifications.json");
+        if (!Files.exists(file)) return;
+        Type collectionType = new TypeToken<ArrayList<Clarification>>(){}.getType();
+        clarifications = gson.fromJson(readFile("data/clarifications.json"), collectionType);
     }
     
     private static void parseProblems() {
@@ -139,6 +161,7 @@ public class SentinelModel {
         saveTeams();
         saveJudges();
         saveSettings();
+        saveClarifications();
     }
     
     public static void saveTeams() {
@@ -152,6 +175,10 @@ public class SentinelModel {
     public static void saveSettings() {
         String serialized = gson.toJson(settings);
         writeFile("data/config.json", serialized);
+    }
+    public static void saveClarifications() {
+        String serialized = gson.toJson(clarifications);
+        writeFile("data/clarifications.json", serialized);
     }
     
     public static void runAsync(Runnable r) {

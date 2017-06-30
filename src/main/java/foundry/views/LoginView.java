@@ -44,7 +44,7 @@ public class LoginView {
     
     public static Route handleLogoutPost = (req, res) -> {
         req.session().invalidate();
-        res.redirect("/");
+        res.redirect("/login");
         return "";
     };
     

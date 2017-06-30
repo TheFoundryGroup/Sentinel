@@ -17,7 +17,7 @@
 
         <div class="col s12 z-depth-1" style="padding-left: 1em; padding-right: 1em;">
             <h3>Submissions</h3>
-            <ul id="submissions" class="collection left-align" data-collapsible="accordion">
+            <ul id="submissions" class="collection left-align">
                 <li class="collection-item" id="empty-submissions">No submissions</li>
             </ul>
             <h3>Submit a solution</h3>
@@ -44,6 +44,9 @@
 
         <div class="col s6 z-depth-1">
             <h1>Clarifications</h1>
+            <ul class="collapsible left-align" id="clarifications" data-collapsible="accordion">
+
+            </ul>
             #parse("/templates/clarification.vtl")
         </div>
     #end
@@ -65,6 +68,12 @@
         }
         if (reason=="update-submission") {
             updateSubmission(json.data);
+        }
+        if (reason=="clarifications") {
+            generateClarifications(json.data);
+        }
+        if (reason=="update-clarification") {
+            updateClarification(json.data);
         }
     });
     var message = {
@@ -119,6 +128,38 @@
             s.innerHTML = sub + s.innerHTML;
             if (document.getElementById("empty-submissions")!=null) document.getElementById("empty-submissions").outerHTML="";
         } else li.outerHTML = sub;
+    }
+
+    function buildClarification(clar) {
+        var ans = "<li id='cl-"+clar.timestamp+"'>";
+        ans+= "<div class='collapsible-header'>Clarification request for "+clar.problem;
+        ans+="<span class='new badge "+(clar.responded?"green":"blue")+"' data-badge-caption=''>"+(clar.responded?"ANSWERED":"AWAITING RESPONSE")+"</span>"
+        ans+="</div>";
+        ans+="<div class='collapsible-body'>"
+        ans+="Request:<br/>"+HTMLify(clar.message);
+        ans+="</div>";
+        ans+="</li>";
+        return ans;
+    }
+
+    function generateClarifications(data) {
+        if (data.length==0) return;
+
+        var ul = document.getElementById("clarifications");
+        data.sort(function(a,b) {return b.timestamp-a.timestamp});
+        for (var i = 0; i<data.length; i++) {
+            var clar = data[i];
+            ul.innerHTML+=buildClarification(clar);
+        }
+    }
+
+    function updateClarification(clar) {
+        var li = document.getElementById(clar.timestamp+"");
+        var clar = buildClarification(clar);
+        if (li==null) {
+            var s = document.getElementById("clarifications");
+            s.innerHTML = clar + s.innerHTML;
+        } else li.outerHTML = clar;
     }
 
 </script>

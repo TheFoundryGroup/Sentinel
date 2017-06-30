@@ -1,5 +1,7 @@
 <div class="row">
-    <form class="col s12" id="clar-request" action="/clarification" method="post">
+    #set($id = "clar-"+$counter)
+    #set($counter = $counter+1)
+    <form id="$id" class="col s12" id="clar-request" action="/clarification" method="post">
         <h3>Request Clarification</h3>
         <div class="input-field">
             <select name="problem">
@@ -13,10 +15,24 @@
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <textarea id="clar-info" name="clar-body" class="materialize-textarea"></textarea>
+                <textarea id="clar-info" name="message" class="materialize-textarea"></textarea>
                 <label for="clar-info">Detailed Description</label>
             </div>
         </div>
         <button class="btn waves-effect waves-light" type="submit" name="action">Submit Request</button>
     </form>
+    <script>
+        $(function () {
+            $('#$id').on('submit',function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url : $(this).attr('action') || window.location.pathname,
+                    data: $('#$id').serialize(),
+                    success: function () {
+                    }
+                });
+            });
+        });
+    </script>
 </div>
