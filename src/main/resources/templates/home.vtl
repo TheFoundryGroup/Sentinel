@@ -2,6 +2,7 @@
 <head>
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
 </head>
 <body>
 
@@ -15,8 +16,8 @@
     #if(!$judge)
 
         <div class="col s12 z-depth-1" style="padding-left: 1em; padding-right: 1em;">
-            <ul id="submissions" class="collection with-header left-align" data-collapsible="accordion">
-                <li class="collection-header"><h5>Submissions</h5></li>
+            <h3>Submissions</h3>
+            <ul id="submissions" class="collection left-align" data-collapsible="accordion">
                 <li class="collection-item" id="empty-submissions">No submissions</li>
             </ul>
             <h3>Submit a solution</h3>
@@ -84,6 +85,20 @@
         return str.replace(/\n/ig, "<br/>");
     }
 
+    function buildSubmission(sub) {
+        var status = sub.status;
+        var color = "blue";
+        if (status=="COMPILE_ERROR" || status=="RUNTIME_ERROR" || status=="INCORRECT") color = "red";
+        if (status=="CORRECT") color = "green";
+        var badge = "<span class='new badge "+color+"' data-badge-caption=''>"+status+"</span>";
+        var ans = "<li class='collection-item' id='"+getSubmissionId(sub)+"'>";
+        ans+=badge;
+        ans+=sub.problem+", attempt "+sub.attempt;
+        if (sub.error!="") ans+="<p>Error:<br/><pre class='red-text'>"+sub.error+"</pre></p>";
+        ans+="</li>";
+        return ans;
+    }
+
     function generateSubmissions(data) {
         if (data.length!=0) document.getElementById("empty-submissions").outerHTML="";
         else return;
@@ -92,27 +107,18 @@
         data.sort(function(a,b) {return b.timestamp-a.timestamp});
         for (var i = 0; i<data.length; i++) {
             var sub = data[i];
-            var status = sub.status;
-            var color = "blue";
-            if (status=="COMPILE_ERROR" || status=="RUNTIME_ERROR" || status=="INCORRECT") color = "red";
-            if (status=="CORRECT") color = "green";
-            var badge = "<span class='new badge "+color+"' data-badge-caption=''>"+status+"</span>";
-            ul.innerHTML+="<li class='collection-item' id='"+getSubmissionId(sub)+"'>"+badge+sub.problem+", attempt "+sub.attempt+
-                    (sub.error=="" ? "" : "<p>Error:<br/><pre class='red-text'>"+sub.error+"</pre></p>")+
-                    "</li>";
+            ul.innerHTML+=buildSubmission(sub);
         }
     }
 
     function updateSubmission(sub) {
-        var li = document.getElementById(getSubmissionId(sub))
-        var status = sub.status;
-        var color = "blue";
-        if (status=="COMPILE_ERROR" || status=="RUNTIME_ERROR" || status=="INCORRECT") color = "red";
-        if (status=="CORRECT") color = "green";
-        var badge = "<span class='new badge "+color+"' data-badge-caption=''>"+status+"</span>";
-        li.outerHTML="<li class='collection-item' id='"+getSubmissionId(sub)+"'>"+badge+sub.problem+", attempt "+sub.attempt+
-                (sub.error=="" ? "" : "<p>Error:<br/><pre class='red-text'>"+sub.error+"</pre></p>")+
-                "</li>";
+        var li = document.getElementById(getSubmissionId(sub));
+        var sub = buildSubmission(sub);
+        if (li==null) {
+            var s = document.getElementById("submissions");
+            s.innerHTML = sub + s.innerHTML;
+            if (document.getElementById("empty-submissions")!=null) document.getElementById("empty-submissions").outerHTML="";
+        } else li.outerHTML = sub;
     }
 
 </script>

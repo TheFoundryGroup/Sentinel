@@ -1,5 +1,7 @@
 <div>
-    <form id="upload" action="/upload" method="post" enctype="multipart/form-data">
+    #set($id = "file-"+$counter)
+    #set($counter = $counter+1)
+    <form id="$id" action="/upload" method="post" class="file-form" enctype="multipart/form-data">
         #if(!$problem)
         <div class="input-field">
             <select name="problem">
@@ -36,5 +38,24 @@
     </form>
     <script>
         $(document).ready(function() {$('select').material_select();});
+        $(document).ready(function () {
+            $('#$id').on('submit', function(e) {
+                e.preventDefault();
+                var data = new FormData(this);
+                $.ajax({
+                    url : $(this).attr('action') || window.location.pathname,
+                    type: "POST",
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        //$("#form_output").html(data);
+                    },
+                    error: function (jXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+            });
+        });
     </script>
 </div>

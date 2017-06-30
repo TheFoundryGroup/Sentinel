@@ -19,6 +19,8 @@ public class Utilities {
         
         boolean judge = req.session().attribute("judge");
         
+        model.put("counter", 0);
+        
         model.put("loggedIn", loggedIn);
         model.put("judge", judge);
         model.put("problems", SentinelModel.getProblems());
