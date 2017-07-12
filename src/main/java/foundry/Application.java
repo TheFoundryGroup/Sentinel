@@ -22,6 +22,7 @@ public class Application {
         get("/", HomeView.handleHomeGet, new VelocityTemplateEngine());
         get("/login", LoginView.handleLoginGet, new VelocityTemplateEngine());
         get("/settings", SettingsView.handleSettingsGet, new VelocityTemplateEngine());
+        post("/settings", SettingsView.handleSettingsPost);
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
         get("/logout", LoginView.handleLogoutPost);

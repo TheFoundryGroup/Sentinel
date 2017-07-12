@@ -5,6 +5,8 @@ import foundry.model.Setting;
 import foundry.model.SettingWrapper;
 import foundry.model.Settings;
 import spark.ModelAndView;
+import spark.QueryParamsMap;
+import spark.Route;
 import spark.TemplateViewRoute;
 
 import java.lang.annotation.Annotation;
@@ -39,6 +41,33 @@ public class SettingsView {
         model.put("currSettings", settings);
         
         return new ModelAndView(model, "templates/settings.vtl");
+    };
+    
+    public static Route handleSettingsPost = (req, res) -> {
+        if (req.session()==null || !(boolean)req.session().attribute("judge"))
+            throw halt(403, "<html><body><h1>Access denied. <a href='/'>Return home.</a></h1></body></html>");
+    
+        QueryParamsMap params = req.queryMap();
+        
+        Settings settings = SentinelModel.getSettings();
+        Class<Settings> sc = Settings.class;
+        Field[] fields = sc.getDeclaredFields();
+        for (Field f : fields) {
+            Annotation[] annotations = f.getDeclaredAnnotations();
+            Setting info = null;
+            for (Annotation a : annotations) if (a.annotationType() == Setting.class) info = (Setting)a;
+            if (info==null) continue;
+            QueryParamsMap val = params.get(info.name());
+            if (f.getType()==boolean.class) {
+                f.set(settings, val.value()!=null && val.value().equals("on"));
+            }
+        }
+        
+        SentinelModel.saveSettings();
+        
+        res.redirect("/settings");
+        
+        return "";
     };
     
 }
