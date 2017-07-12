@@ -1,0 +1,39 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+</head>
+<body>
+
+    #parse("/templates/nav.vtl")
+
+<div class="container center-align row">
+    <h1 class="s12">Settings</h1>
+
+    <div class="divider"></div>
+
+    <form action="/settings" method="post">
+        #foreach($setting in $currSettings)
+        #if($setting.getValue().class.simpleName=="Boolean")
+            <div class="switch">
+                <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="$setting.getDescription()">$setting.getName()</div>
+                <label>
+                    Off
+                    <input type="checkbox" name="$setting.getName()" #if($setting.getValue())checked="checked"#end>
+                    <span class="lever"></span>
+                    On
+                </label>
+            </div>
+        #end
+        #end
+    </form>
+
+
+
+</div>
+
+<script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

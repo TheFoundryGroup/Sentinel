@@ -7,7 +7,11 @@
 
             <li #if($leaderboard)class="active"#end><a href="leaderboard">Leaderboard</a></li>
 
+            #if($judge)
+            <li #if($settings)class="active"#end><a href="settings">Settings</a></li>
+            #end
+
         </ul>
-        <div class="brand-logo right">$loggedIn</div>
+        <div class="brand-logo right">$loggedIn<a href="/logout" class="large material-icons">exit_to_app</a></div>
     </div>
 </nav>

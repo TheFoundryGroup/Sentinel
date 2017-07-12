@@ -2,7 +2,8 @@ package foundry.model;
 
 public class Settings {
 
-    private boolean leaderboard = false;
+    @Setting(name = "Leaderboard", description = "Enables the leaderboard for contestants")
+    public boolean leaderboard = false;
     
     public Settings(boolean leaderboard) {
         this.leaderboard = leaderboard;
@@ -10,14 +11,6 @@ public class Settings {
     
     public Settings() {
         this(true);
-    }
-
-    public boolean leaderboardEnabled() {
-        return leaderboard;
-    }
-
-    public void setLeaderboardEnabled(boolean leaderboard) {
-        this.leaderboard = leaderboard;
     }
     
 }

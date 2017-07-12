@@ -1,6 +1,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
 </head>
@@ -63,6 +64,9 @@
         var json = JSON.parse(event.data);
         var reason = json.reason;
         console.log(reason);
+        socket.addEventListener('close', function (event) {
+            window.location.reload(false);
+        });
         if (reason=="submissions") {
             generateSubmissions(json.data);
         }

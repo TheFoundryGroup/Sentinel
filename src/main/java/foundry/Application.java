@@ -2,6 +2,7 @@ package foundry;
 
 import foundry.judge.AutoJudge;
 import foundry.model.SentinelModel;
+import foundry.model.Settings;
 import foundry.views.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
@@ -20,8 +21,10 @@ public class Application {
         });
         get("/", HomeView.handleHomeGet, new VelocityTemplateEngine());
         get("/login", LoginView.handleLoginGet, new VelocityTemplateEngine());
+        get("/settings", SettingsView.handleSettingsGet, new VelocityTemplateEngine());
         post("/login", LoginView.handleLoginPost);
         post("/logout", LoginView.handleLogoutPost);
+        get("/logout", LoginView.handleLogoutPost);
         post("/upload", UploadView.handleUploadPost);
         post("/clarification", ClarificationView.handleClarificationPost);
         SentinelModel.save();
