@@ -1,25 +1,17 @@
 <div class="row">
     #set($id = "clar-"+$counter)
     #set($counter = $counter+1)
-    <form id="$id" class="col s12" id="clar-request" action="/clarification" method="post">
-        <h3>Request Clarification</h3>
-        <div class="input-field">
-            <select name="problem">
-                <option value="" disabled selected>Problem</option>
-                #foreach($p in $problems)
-                    <option value="$p.getName()" >$p.getName()</option>
-                #end
-                <option value="other">Other</option>
-            </select>
-            <label>Problem</label>
-        </div>
+    <form id="$id" class="col s12" id="clar-request" action="/clarification-response" method="post">
+        <h3>Respond</h3>
         <div class="row">
             <div class="input-field col s12">
                 <textarea id="clar-info" name="message" class="materialize-textarea"></textarea>
-                <label for="clar-info">Detailed Description</label>
+                <label for="clar-info">Response</label>
             </div>
         </div>
-        <button class="btn waves-effect waves-light" type="submit" name="action">Submit Request</button>
+        <input type="checkbox" class="global" id="global-$id" checked="checked" />
+        <label for="global-$id" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Allows all teams to see clarification and response">Global</label>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Submit Response</button>
     </form>
     <script>
         $(function () {

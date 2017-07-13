@@ -1,10 +1,7 @@
 package foundry.views;
 
 import com.google.gson.Gson;
-import foundry.model.Clarification;
-import foundry.model.SentinelModel;
-import foundry.model.Submission;
-import foundry.model.Team;
+import foundry.model.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -32,8 +29,10 @@ public class WebsocketHandler {
     
     // Store sessions if you want to, for example, broadcast a message to all users
     private static final ConcurrentLinkedQueue<Session> allSessions = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentHashMap<Team, List<Session>> sessions = new ConcurrentHashMap<>(1000);
-    private static final ConcurrentHashMap<Session, Team> sessionMap = new ConcurrentHashMap<>(1000);
+    private static final ConcurrentHashMap<Team, List<Session>> teamMap = new ConcurrentHashMap<>(1000);
+    private static final ConcurrentHashMap<Session, Team> teamSessions = new ConcurrentHashMap<>(1000);
+    private static final ConcurrentHashMap<Judge, List<Session>> judgeMap = new ConcurrentHashMap<>(1000);
+    private static final ConcurrentHashMap<Session, Judge> judgeSessions = new ConcurrentHashMap<>(1000);
     
     @OnWebSocketConnect
     public void connected(Session session) throws IOException {
@@ -43,8 +42,13 @@ public class WebsocketHandler {
     @OnWebSocketClose
     public void closed(Session session, int statusCode, String reason) {
         try {
-            sessions.get(sessionMap.get(session)).remove(session);
-            sessionMap.remove(session);
+            if (teamSessions.get(session)!=null) {
+                teamMap.get(teamSessions.get(session)).remove(session);
+                teamSessions.remove(session);
+            } else {
+                judgeMap.get(judgeSessions.get(session)).remove(session);
+                judgeSessions.remove(session);
+            }
             allSessions.remove(session);
         } catch (NullPointerException ignored) {}
     }
@@ -52,13 +56,26 @@ public class WebsocketHandler {
     @OnWebSocketMessage
     public void message(Session session, String messageRaw) throws IOException {
         WSInboundMessage m = gson.fromJson(messageRaw, WSInboundMessage.class);
-        Team t = SentinelModel.getTeam(m.teamName);
-        if (Long.parseLong(m.auth)==t.getWebsocketAuth()) {
-            sessions.computeIfAbsent(t, k -> new ArrayList<>());
-            sessions.get(t).add(session);
+        boolean judge = m.judge;
+        Team t = null;
+        Judge j = null;
+        if (judge) {
+            j = SentinelModel.getJudge(m.teamName);
+        } else {
+            t = SentinelModel.getTeam(m.teamName);
+        }
+        if (Long.parseLong(m.auth)==(judge ? j.getWebsocketAuth() : t.getWebsocketAuth())) {
+            if (judge) {
+                judgeMap.computeIfAbsent(j, k -> new ArrayList<>());
+                judgeMap.get(j).add(session);
+                judgeSessions.put(session, j);
+            } else {
+                teamMap.computeIfAbsent(t, k -> new ArrayList<>());
+                teamMap.get(t).add(session);
+                teamSessions.put(session, t);
+            }
             allSessions.add(session);
-            sessionMap.put(session, t);
-            sendSubmissions(session);
+            if (!judge) sendSubmissions(session);
             sendClarifications(session);
         } else {
             session.getRemote().sendString("false");
@@ -67,17 +84,17 @@ public class WebsocketHandler {
     }
     
     public static void sendSubmissions(Session s) {
-        Team t = sessionMap.get(s);
+        Team t = teamSessions.get(s);
         WSOutboundMessage mess = new WSOutboundMessage("submissions", t.getSubmissions());
         try {
             s.getRemote().sendString(gson.toJson(mess));
         } catch (IOException ignored) {}
     }
     public static void updateSubmission(Team t, Submission s) {
-        if (sessions.get(t)==null) return;
+        if (teamMap.get(t)==null) return;
         WSOutboundMessage mess = new WSOutboundMessage("update-submission", s);
         String ans = gson.toJson(mess);
-        sessions.get(t).forEach(sess -> {
+        teamMap.get(t).forEach(sess -> {
             try {
                 sess.getRemote().sendString(ans);
             } catch (IOException ignored) {}
@@ -85,8 +102,15 @@ public class WebsocketHandler {
     }
     
     public static void sendClarifications(Session s) {
-        Team t = sessionMap.get(s);
-        WSOutboundMessage mess = new WSOutboundMessage("clarifications", SentinelModel.getClarifications(t));
+        Team t = teamSessions.get(s);
+        Judge j = judgeSessions.get(s);
+        if (t==null && j==null) {
+            s.close();
+            throw new RuntimeException("Session not mapped to team/judge");
+        }
+        WSOutboundMessage mess = t==null ?
+                new WSOutboundMessage("clarifications", SentinelModel.getClarifications()) :
+                new WSOutboundMessage("clarifications", SentinelModel.getClarifications(t));
         try {
             s.getRemote().sendString(gson.toJson(mess));
         } catch (IOException ignored) {}
@@ -101,7 +125,12 @@ public class WebsocketHandler {
                 } catch (IOException ignored) {}
             });
         } else {
-            sessions.get(SentinelModel.getTeam(c.getFrom())).forEach(s -> {
+            judgeSessions.keySet().forEach(s -> {
+                try {
+                    s.getRemote().sendString(gson.toJson(mess));
+                } catch (IOException ignored) {}
+            });
+            if (teamMap.get(SentinelModel.getTeam(c.getFrom()))!=null) teamMap.get(SentinelModel.getTeam(c.getFrom())).forEach(s -> {
                 try {
                     s.getRemote().sendString(gson.toJson(mess));
                 } catch (IOException ignored) {}

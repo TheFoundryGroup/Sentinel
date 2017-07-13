@@ -46,9 +46,16 @@
         <div class="col s6 z-depth-1">
             <h1>Clarifications</h1>
             <ul class="collapsible left-align" id="clarifications" data-collapsible="accordion">
-
+                <li class="collection-item" id="empty-clarifications">No clarifications</li>
             </ul>
-            #parse("/templates/clarification.vtl")
+            #parse("/templates/clarificationRequest.vtl")
+        </div>
+    #else
+        <div class="col s12 z-depth-1">
+            <h1>Clarifications</h1>
+            <ul class="collapsible left-align" id="clarifications" data-collapsible="accordion">
+                <li class="collection-item" id="empty-clarifications">No clarifications</li>
+            </ul>
         </div>
     #end
 
@@ -134,20 +141,59 @@
         } else li.outerHTML = sub;
     }
 
+    #if($judge)
+    function submitResponse(id) {
+        var form = $("#"+id);
+        $.ajax({
+            type: 'POST',
+            url : form.attr('action') || window.location.pathname,
+            data: form.serialize(),
+            success: function () {}
+        });
+    }
+
+    var count = 1;
+    function buildClarificationResponse(clar) {
+        var id = "clar-"+count++;
+        var ans = '<div class="row center-align">';
+        ans+='<form id="'+id+'" class="col s12" id="clar-request" action="/clarification-response" onsubmit="submitResponse(\''+id+'\'); return false;" method="post">';
+        ans+='<h3>Respond</h3>';
+        ans+='<div style="display:none"><select name="id"><option value="'+clar.id+'"></option></select></div>';
+        ans+='<div class="input-field col s12">';
+        ans+='<textarea id="clar-info" name="message" class="materialize-textarea"></textarea>';
+        ans+='<label for="clar-info">Response</label>';
+        ans+='</div>';
+        ans+='<input type="checkbox" class="global" id="global-'+id+'" name="global"/>';
+        ans+='<label for="global-'+id+'" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Allows all teams to see clarification and response">Global</label>';
+        ans+='<br/>'
+        ans+='<button class="btn waves-effect waves-light" type="submit" name="action">Submit Response</button>';
+        ans+='</form>';
+        ans+='</div>';
+        return ans;
+    }
+
     function buildClarification(clar) {
         var ans = "<li id='cl-"+clar.timestamp+"'>";
         ans+= "<div class='collapsible-header'>Clarification request for "+clar.problem;
         ans+="<span class='new badge "+(clar.responded?"green":"blue")+"' data-badge-caption=''>"+(clar.responded?"ANSWERED":"AWAITING RESPONSE")+"</span>"
+        if (clar.global) ans+="<span class='new badge blue' data-badge-caption=''>Global</span>";
         ans+="</div>";
         ans+="<div class='collapsible-body'>"
+        ans+="From "+clar.from+"<br/>";
         ans+="Request:<br/>"+HTMLify(clar.message);
+        ans+="<br/>";
+
+        if (!clar.responded) ans+=buildClarificationResponse(clar);
+        else ans+="Response:<br/>"+HTMLify(clar.response);
+
         ans+="</div>";
         ans+="</li>";
         return ans;
     }
 
     function generateClarifications(data) {
-        if (data.length==0) return;
+        if (data.length!=0) document.getElementById("empty-clarifications").outerHTML="";
+        else return;
 
         var ul = document.getElementById("clarifications");
         data.sort(function(a,b) {return b.timestamp-a.timestamp});
@@ -158,13 +204,50 @@
     }
 
     function updateClarification(clar) {
-        var li = document.getElementById(clar.timestamp+"");
+        if (document.getElementById("empty-clarifications")!=null) document.getElementById("empty-clarifications").outerHTML="";
+        var li = document.getElementById("cl-"+clar.timestamp);
         var clar = buildClarification(clar);
         if (li==null) {
             var s = document.getElementById("clarifications");
             s.innerHTML = clar + s.innerHTML;
         } else li.outerHTML = clar;
     }
+    #else
+    function buildClarification(clar) {
+        var ans = "<li id='cl-"+clar.timestamp+"'>";
+        ans+= "<div class='collapsible-header'>Clarification request for "+clar.problem;
+        ans+="<span class='new badge "+(clar.responded?"green":"blue")+"' data-badge-caption=''>"+(clar.responded?"ANSWERED":"AWAITING RESPONSE")+"</span>"
+        ans+="</div>";
+        ans+="<div class='collapsible-body'>"
+        ans+="Request:<br/>"+HTMLify(clar.message);
+        if (clar.responded) ans+="<br/>Response:<br/>"+HTMLify(clar.response);
+        ans+="</div>";
+        ans+="</li>";
+        return ans;
+    }
+
+    function generateClarifications(data) {
+        if (data.length!=0) document.getElementById("empty-clarifications").outerHTML="";
+        else return;
+
+        var ul = document.getElementById("clarifications");
+        data.sort(function(a,b) {return b.timestamp-a.timestamp});
+        for (var i = 0; i<data.length; i++) {
+            var clar = data[i];
+            ul.innerHTML+=buildClarification(clar);
+        }
+    }
+
+    function updateClarification(clar) {
+        if (document.getElementById("empty-clarifications")!=null) document.getElementById("empty-clarifications").outerHTML="";
+        var li = document.getElementById("cl-"+clar.timestamp);
+        var clar = buildClarification(clar);
+        if (li==null) {
+            var s = document.getElementById("clarifications");
+            s.innerHTML = clar + s.innerHTML;
+        } else li.outerHTML = clar;
+    }
+    #end
 
 </script>
 </body>

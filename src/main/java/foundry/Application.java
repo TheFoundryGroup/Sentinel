@@ -28,6 +28,7 @@ public class Application {
         get("/logout", LoginView.handleLogoutPost);
         post("/upload", UploadView.handleUploadPost);
         post("/clarification", ClarificationView.handleClarificationPost);
+        post("/clarification-response", ClarificationView.handleClarificationResponsePost);
         SentinelModel.save();
         
         Thread autoJudge = new Thread(new AutoJudge());

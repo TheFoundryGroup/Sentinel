@@ -11,6 +11,7 @@ public class Clarification {
     String response;
     boolean responded;
     long timestamp;
+    int id;
     
     public Clarification(String from, String problem, String message) {
         this.from = from;
@@ -20,12 +21,14 @@ public class Clarification {
         this.response = null;
         this.responded = false;
         this.timestamp = System.currentTimeMillis();
+        this.id = SentinelModel.getClarifications().size();
         WebsocketHandler.updateClarification(this);
     }
     
     public void respond(String response, boolean global) {
         this.response = response;
         this.global = global;
+        this.responded = true;
         WebsocketHandler.updateClarification(this);
     }
     
@@ -62,5 +65,8 @@ public class Clarification {
     }
     public long getTimestamp() {
         return timestamp;
+    }
+    public int getId() {
+        return id;
     }
 }

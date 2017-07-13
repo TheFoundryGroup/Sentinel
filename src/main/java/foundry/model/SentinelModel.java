@@ -86,6 +86,10 @@ public class SentinelModel {
     public static List<Clarification> getClarifications(Team t) {
         return clarifications.stream().filter(c -> c.concerns(t)).collect(Collectors.toList());
     }
+    public static Clarification getClarification(int id) {
+        for (Clarification c : clarifications) if (c.getId()==id) return c;
+        return null;
+    }
     
     public static void addClarification(Clarification c) {
         clarifications.add(c);

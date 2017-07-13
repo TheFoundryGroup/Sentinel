@@ -27,6 +27,8 @@ public class Utilities {
         
         if (!(boolean)model.get("judge")) {
             model.put("websocketAuth", SentinelModel.getTeam(loggedIn).getWebsocketAuth());
+        } else {
+            model.put("websocketAuth", SentinelModel.getJudge(loggedIn).getWebsocketAuth());
         }
         
         return model;
