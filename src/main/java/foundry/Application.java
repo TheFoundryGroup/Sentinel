@@ -14,6 +14,10 @@ public class Application {
         port(80);
         webSocket("/websocket", WebsocketHandler.class);
         staticFileLocation("public");
+        
+        //do nothing in case of NogLoggedIn
+        exception(NotLoggedInException.class, (e, req, res) -> {});
+        
         before((req, res) -> {
             if (req.session().attribute("loggedIn")==null && (!req.pathInfo().equals("/login") && !req.pathInfo().equals("/login/"))) {
                 res.redirect("login", 303);
